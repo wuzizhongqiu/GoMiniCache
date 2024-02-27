@@ -9,17 +9,22 @@ import (
 	"testing"
 )
 
-var address string = ":8080"
+var addressTest string = ":8080"
 
 // TestListenAndServe 一个简单的 Echo 服务器，它会接受客户端连接并将客户端发送的内容原样传回客户端
 func TestListenAndServe(t *testing.T) {
 	// 绑定监听地址
-	listener, err := net.Listen("tcp", address)
+	listener, err := net.Listen("tcp", addressTest)
 	if err != nil {
 		log.Fatalf(fmt.Sprintf("listen err: %v", err))
 	}
-	defer listener.Close()
-	log.Println(fmt.Sprintf("bind: %s, start listening...", address))
+	defer func(listener net.Listener) {
+		err := listener.Close()
+		if err != nil {
+
+		}
+	}(listener)
+	log.Println(fmt.Sprintf("bind: %s, start listening...", addressTest))
 
 	for {
 		// Accept 会一直阻塞直到有新的连接建立或者 listen 中断才会返回
@@ -33,8 +38,9 @@ func TestListenAndServe(t *testing.T) {
 	}
 }
 
+// Handle 处理请求的逻辑
 func Handle(conn net.Conn) {
-	// 使用 bufio 标准库提供的缓冲区功能
+	// 使用 bu-fio 标准库提供的缓冲区功能
 	reader := bufio.NewReader(conn)
 	for {
 		// ReadString 会一直阻塞到遇到分隔符 '\n'
@@ -52,6 +58,9 @@ func Handle(conn net.Conn) {
 		}
 		b := []byte(msg)
 		// 将收到的信息发送给客户端
-		conn.Write(b)
+		_, err = conn.Write(b)
+		if err != nil {
+			return
+		}
 	}
 }
