@@ -1,6 +1,6 @@
 package tcp
 
-/**
+/*
  * 一个 echo 服务器，用于测试服务器是否正常运行
  */
 
@@ -22,8 +22,8 @@ type EchoHandler struct {
 	closing    atomic.Boolean // 记录状态（如果处于关闭状态，停止接收请求）（原子操作）
 }
 
-// MakeHandler 用于创建 EchoHandler
-func MakeHandler() *EchoHandler {
+// MakeEchoHandler 用于创建 EchoHandler
+func MakeEchoHandler() *EchoHandler {
 	return &EchoHandler{}
 }
 

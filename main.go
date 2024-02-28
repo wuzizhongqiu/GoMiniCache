@@ -3,8 +3,8 @@ package main
 import (
 	"GoMiniCache/config"
 	"GoMiniCache/lib/logger"
+	redishandler "GoMiniCache/resp/handler"
 	"GoMiniCache/tcp"
-	EchoHandler "GoMiniCache/tcp"
 	"fmt"
 	"os"
 )
@@ -44,7 +44,7 @@ func main() {
 				config.Properties.Bind,
 				config.Properties.Port),
 		},
-		EchoHandler.MakeHandler())
+		redishandler.MakeRespHandler()) // 传处理函数逻辑
 	if err != nil {
 		logger.Error(err)
 	}
