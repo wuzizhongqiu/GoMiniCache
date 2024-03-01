@@ -5,11 +5,15 @@ package structure
  */
 
 import (
+	"GoMiniCache/interface/resp"
 	"strings"
 )
 
 // CmdTable 给每个指令对应一个 command 结构体
 var CmdTable = make(map[string]*command)
+
+// ExecFunc 执行函数的实现
+type ExecFunc func(db *DB, args [][]byte) resp.Reply
 
 type command struct {
 	Executor ExecFunc // 这个命令的执行方法

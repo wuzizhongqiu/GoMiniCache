@@ -9,7 +9,7 @@ import (
 	"GoMiniCache/resp/reply"
 )
 
-// Ping the server
+// Ping 回复 Pong
 func Ping(db *DB, args [][]byte) resp.Reply {
 	return reply.MakePongReply()
 }

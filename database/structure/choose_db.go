@@ -19,9 +19,6 @@ type DB struct {
 	AddAof func([][]byte)
 }
 
-// ExecFunc 执行函数的实现
-type ExecFunc func(db *DB, args [][]byte) resp.Reply
-
 // MakeDB 创建 DB 实例
 func MakeDB() *DB {
 	db := &DB{

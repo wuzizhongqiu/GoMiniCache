@@ -6,6 +6,7 @@ package structure
 
 import (
 	"GoMiniCache/interface/resp"
+	"GoMiniCache/lib/utils"
 	"GoMiniCache/lib/wildcard"
 	"GoMiniCache/resp/reply"
 )
@@ -18,6 +19,9 @@ func execDel(db *DB, args [][]byte) resp.Reply {
 	}
 
 	deleted := db.Removes(keys...)
+	if deleted > 0 {
+		db.AddAof(utils.ToCmdLine2("del", args...))
+	}
 	return reply.MakeIntReply(int64(deleted)) // 回复有多少个操作
 }
 
@@ -37,6 +41,7 @@ func execExists(db *DB, args [][]byte) resp.Reply {
 // execFlushDB 删除所有键值
 func execFlushDB(db *DB, args [][]byte) resp.Reply {
 	db.Flush()
+	db.AddAof(utils.ToCmdLine2("flushdb", args...))
 	return reply.MakeOkReply()
 }
 
@@ -69,6 +74,7 @@ func execRename(db *DB, args [][]byte) resp.Reply {
 	}
 	db.PutEntity(dest, entity)
 	db.Remove(src)
+	db.AddAof(utils.ToCmdLine2("rename", args...))
 	return reply.MakeOkReply()
 }
 
@@ -88,6 +94,7 @@ func execRenameNx(db *DB, args [][]byte) resp.Reply {
 	}
 	db.Remove(src)
 	db.PutEntity(dest, entity)
+	db.AddAof(utils.ToCmdLine2("renamenx", args...))
 	return reply.MakeIntReply(1)
 }
 

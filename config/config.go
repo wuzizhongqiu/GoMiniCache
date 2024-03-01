@@ -14,7 +14,7 @@ import (
 type ServerProperties struct {
 	Bind           string `cfg:"bind"`
 	Port           int    `cfg:"port"`
-	AppendOnly     bool   `cfg:"appendOnly"`
+	AppendOnly     bool   `cfg:"appendOnly"` // yes 表示启用 AOF
 	AppendFilename string `cfg:"appendFilename"`
 	MaxClients     int    `cfg:"maxclients"`
 	RequirePass    string `cfg:"requirepass"`

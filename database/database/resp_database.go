@@ -1,7 +1,7 @@
 package database
 
 /*
- * 我们使用的数据库内核
+ * 实现我们使用的数据库内核
  */
 
 import (

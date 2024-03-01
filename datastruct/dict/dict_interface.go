@@ -21,7 +21,3 @@ type Dict interface {
 	RandomDistinctKeys(limit int) []string                // 返回多个不重复的键
 	Clear()                                               // 清空字典
 }
-
-type Test interface {
-	Learn(x int) int
-}

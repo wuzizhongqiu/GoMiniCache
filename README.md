@@ -262,19 +262,160 @@ type DataEntity struct {
 }
 ```
 
-
-
-
-
-
-
-
-
 ## Golang 实现 Redis 持久化
 
-
-
 ## Golang 实现 Redis 集群
+
+# GoMiniCache 项目核心架构分析
+
+跟着核心流程走，通过 Handle 处理函数的实现，可以窥见项目设计的全貌，这里我主要分享数据库内核的巧妙实现
+
+## datastruct/dict
+
+### dict_interface.go
+
+实现了对数据库底层KV存储的封装，将基本的操作方法函数封装，之后想要修改底层存储，就不需要把每个方法都修改一遍，只需要将底层的存储实现，直接修改底层配置即可。**外层调用只需要关心和操作 Dict 提供的方法。**
+
+```go
+// Consumer 用于遍历字典，如果返回 false 则遍历中断（sync.Map 的遍历规则，传入一个方法）
+type Consumer func(key string, val interface{}) bool
+
+// Dict 是 kv 存储数据结构的抽象（如果之后要改底层存储的实现，只需要修改实现即可，接口已经定义好了）
+type Dict interface {
+	Get(key string) (val interface{}, exists bool)        // key 获取 val（以及 key 是否存在）
+	Len() int                                             // 返回数据长度
+	Put(key string, val interface{}) (result int)         // 存入 kv
+	PutIfAbsent(key string, val interface{}) (result int) // 如果不存在才存入 kv
+	PutIfExists(key string, val interface{}) (result int) // 如果存在才存入 kv
+	Remove(key string) (result int)                       // 删除
+	ForEach(consumer Consumer)                            // 遍历整个字典
+	Keys() []string                                       // 列出所有键
+	RandomKeys(limit int) []string                        // 列出指定个数的键
+	RandomDistinctKeys(limit int) []string                // 返回多个不重复的键
+	Clear()                                               // 清空字典
+}
+```
+
+而 lock_dict.go 和 sync_dict.go 就是两种底层实现，他们只需要对外提供创建方法即可：
+
+```go
+// MakeTestDick 实现一个 Make 创建函数，就能直接对外提供了
+func MakeTestDick() *TestDick {
+	return &TestDick{}
+}
+```
+
+## database
+
+### database
+
+对应 interface 中的 database 抽象，实现我们需要的数据库内核，这里我们仿的是 Redis 的实现
+
+```go
+// NewDatabase 创建一个类 Redis 数据库
+func NewDatabase() *Database {
+	mdb := &Database{}
+	if config.Properties.Databases == 0 {
+		config.Properties.Databases = 16 // 默认 16 个
+	}
+	mdb.dbSet = make([]*structure.DB, config.Properties.Databases)
+	for i := range mdb.dbSet {
+		singleDB := structure.MakeDB() // 创建好底层存储
+		singleDB.Index = i
+		mdb.dbSet[i] = singleDB
+	}
+	if config.Properties.AppendOnly {
+		aofHandler, err := aof.NewAOFHandler(mdb) // 启用 AOF 持久化
+		if err != nil {
+			panic(err)
+		}
+		mdb.aofHandler = aofHandler
+		for _, db := range mdb.dbSet {
+			singleDB := db
+			singleDB.AddAof = func(line [][]byte) {
+				mdb.aofHandler.AddAof(singleDB.Index, line)
+			}
+		}
+	}
+	return mdb
+}
+```
+
+这是最开始测试用的 echo 数据库内核，他们都是我们在 Handle 处理连接的时候创建并使用
+
+```go
+func NewEchoDatabase() *EchoDatabase {
+	return &EchoDatabase{}
+}
+```
+
+### structure
+
+在 **choose_db.go** 中，创建 DB 实例，并用通过 Dick 实现的基本操作方法封装 Redis 的基础操作
+
+```go
+// MakeDB 创建 DB 实例
+func MakeDB() *DB {
+	db := &DB{
+		Data: dict.MakeSyncDict(), // 底层存储（可改）
+	}
+	return db
+}
+```
+
+在 **cmd_register.go** 中，封装不同指令的执行方法，通过注册的方式管理不同指令的实现⭐（非常巧妙的做法）
+
+```go
+// CmdTable 给每个指令对应一个 command 结构体
+var CmdTable = make(map[string]*command)
+
+// ExecFunc 执行函数的实现
+type ExecFunc func(db *DB, args [][]byte) resp.Reply
+
+type command struct {
+	Executor ExecFunc // 这个命令的执行方法
+	Arity    int      // 这个命令的参数数量
+}
+
+// RegisterCommand 注册一个新命令（这样每个指令就能有他自己的实现了）
+// name 是命令的名称，executor 是执行的方法，arity 是命令的参数数量
+func RegisterCommand(name string, executor ExecFunc, arity int) {
+	name = strings.ToLower(name)
+	CmdTable[name] = &command{
+		Executor: executor,
+		Arity:    arity,
+	}
+}
+```
+
+以 ping.go 也就是 ping 命令的实现为例：
+
+```go
+// Ping 回复 Pong
+func Ping(db *DB, args [][]byte) resp.Reply {
+	return reply.MakePongReply()
+}
+
+func init() {
+	RegisterCommand("ping", Ping, -1) // PING 需要参数 >=1
+}
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

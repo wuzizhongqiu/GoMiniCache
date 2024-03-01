@@ -4,7 +4,9 @@ package dict
  * 使用 sync.Map 作为数据库底层存储
  */
 
-import "sync"
+import (
+	"sync"
+)
 
 // SyncDict 使用 sync.Map 作为底层存储
 type SyncDict struct {

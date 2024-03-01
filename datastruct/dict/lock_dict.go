@@ -4,7 +4,9 @@ package dict
  * 使用分段锁 map 作为底层存储（TODO）
  */
 
-import "sync"
+import (
+	"sync"
+)
 
 // LockDick 一个非并发安全的 map
 type LockDick struct {
@@ -12,8 +14,8 @@ type LockDick struct {
 	mu sync.Mutex
 }
 
-// MakeSimple 创建
-func MakeSimple() *LockDick {
+// MakeLockDick 创建
+func MakeLockDick() *LockDick {
 	return &LockDick{
 		m: make(map[string]interface{}),
 	}
@@ -124,5 +126,5 @@ func (dict *LockDick) RandomDistinctKeys(limit int) []string {
 
 // Clear 清空字典
 func (dict *LockDick) Clear() {
-	*dict = *MakeSimple()
+	*dict = *MakeLockDick()
 }

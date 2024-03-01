@@ -9,7 +9,7 @@ import (
 	"testing"
 )
 
-var addressTest string = ":8080"
+var addressTest = ":8080"
 
 // TestListenAndServe 一个简单的 Echo 服务器，它会接受客户端连接并将客户端发送的内容原样传回客户端
 func TestListenAndServe(t *testing.T) {
