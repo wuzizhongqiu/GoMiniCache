@@ -20,6 +20,10 @@ func (r *UnknownErrReply) Error() string {
 	return "Err unknown"
 }
 
+func MakeUnknownErrReply() *UnknownErrReply {
+	return &UnknownErrReply{}
+}
+
 /* ---- 分割线 ---- */
 
 // ArgNumErrReply 命令参数数目出错

@@ -246,6 +246,28 @@ type DataEntity struct {
 
 ## Golang 实现内存型数据库
 
+### 数据库的底层抽象
+
+```go
+// Database Redis 风格的存储引擎
+type Database interface {
+	Exec(client resp.Connection, args [][]byte) resp.Reply // 执行指令
+	AfterClientClose(c resp.Connection)                    // 关闭后的操作（善后工作）
+	Close()                                                // 关闭连接
+}
+
+// DataEntity 指代 Redis 的数据结构，包括 string, list, hash, set 等等
+type DataEntity struct {
+	Data interface{}
+}
+```
+
+
+
+
+
+
+
 
 
 ## Golang 实现 Redis 持久化
@@ -253,3 +275,10 @@ type DataEntity struct {
 
 
 ## Golang 实现 Redis 集群
+
+
+
+
+
+
+

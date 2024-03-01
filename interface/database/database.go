@@ -1,11 +1,12 @@
 package database
 
+/*
+ * 对使用的底层数据库的抽象
+ */
+
 import (
 	"GoMiniCache/interface/resp"
 )
-
-// CmdLine 代表一个命令行
-type CmdLine = [][]byte
 
 // Database Redis 风格的存储引擎
 type Database interface {

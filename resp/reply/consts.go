@@ -10,11 +10,17 @@ package reply
 // 小知识: 给 Redis 发一个 PING 他会回一个 PONG
 type PongReply struct{}
 
+var thePongReply = new(PongReply)
+
 var pongBytes = []byte("+PONG\r\n")
 
 // ToBytes 序列化 resp.Reply
 func (r *PongReply) ToBytes() []byte {
 	return pongBytes
+}
+
+func MakePongReply() *PongReply {
+	return thePongReply
 }
 
 /* ---- 分割线 ---- */
@@ -65,6 +71,10 @@ type EmptyMultiBulkReply struct{}
 // ToBytes 序列化 resp.Reply
 func (r *EmptyMultiBulkReply) ToBytes() []byte {
 	return emptyMultiBulkBytes
+}
+
+func MakeEmptyMultiBulkReply() *EmptyMultiBulkReply {
+	return &EmptyMultiBulkReply{}
 }
 
 /* ---- 分割线 ---- */

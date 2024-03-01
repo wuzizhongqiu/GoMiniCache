@@ -5,7 +5,7 @@ package handler
  */
 
 import (
-	"GoMiniCache/database"
+	"GoMiniCache/database/database"
 	databaseface "GoMiniCache/interface/database"
 	"GoMiniCache/lib/logger"
 	"GoMiniCache/lib/sync/atomic"
@@ -33,7 +33,7 @@ type RespHandler struct {
 // MakeRespHandler 创建 RespHandler
 func MakeRespHandler() *RespHandler {
 	var db databaseface.Database
-	db = database.NewEchoDatabase()
+	db = database.NewDatabase()
 	return &RespHandler{
 		db: db,
 	}

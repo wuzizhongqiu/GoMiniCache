@@ -9,6 +9,7 @@ import (
 	"GoMiniCache/lib/logger"
 	"GoMiniCache/resp/reply"
 	"bufio"
+	"bytes"
 	"errors"
 	"io"
 	"runtime/debug"
@@ -41,6 +42,18 @@ func ParseStream(reader io.Reader) <-chan *Payload {
 	ch := make(chan *Payload)
 	go parse0(reader, ch)
 	return ch
+}
+
+// ParseOne reads data from []byte and return the first payload
+func ParseOne(data []byte) (resp.Reply, error) {
+	ch := make(chan *Payload)
+	reader := bytes.NewReader(data)
+	go parse0(reader, ch)
+	payload := <-ch // parse0 will close the channel
+	if payload == nil {
+		return nil, errors.New("no reply")
+	}
+	return payload.Data, payload.Err
 }
 
 // parse0 解析客户端传来的数据的主逻辑

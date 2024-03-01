@@ -44,7 +44,7 @@ func main() {
 				config.Properties.Bind,
 				config.Properties.Port),
 		},
-		redishandler.MakeRespHandler()) // 传处理函数逻辑
+		redishandler.MakeRespHandler()) // 选择使用 TCP 的处理逻辑
 	if err != nil {
 		logger.Error(err)
 	}
